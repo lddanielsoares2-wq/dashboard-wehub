@@ -1,0 +1,42 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    container_name: hds-backend
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      
+      # HTTP Router (redirect to HTTPS)
+      - "traefik.http.routers.back-http.rule=Host(`back.hdsgroup.io`)"
+      - "traefik.http.routers.back-http.entrypoints=web"
+      - "traefik.http.routers.back-http.middlewares=redirect-to-https@docker"
+      
+      # HTTPS Router
+      - "traefik.http.routers.back.rule=Host(`back.hdsgroup.io`)"
+      - "traefik.http.routers.back.entrypoints=websecure"
+      - "traefik.http.routers.back.tls=true"
+      - "traefik.http.routers.back.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.back.service=back"
+      
+      # Service
+      - "traefik.http.services.back.loadbalancer.server.port=3003"
+      
+      # Redirect middleware
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+      
+      # Network
+      - "traefik.docker.network=coolify"
+      
+    networks:
+      - coolify
+
+networks:
+  coolify:
+    external: true

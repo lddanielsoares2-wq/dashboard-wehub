@@ -1,0 +1,61 @@
+services:
+    app:
+        build: .
+        restart: unless-stopped
+        volumes:
+            - '/data/coolify/applications/uc0w88ks84cogs8wwg4sgwk4/data:/app/data'
+        environment:
+            NODE_ENV: production
+            COOLIFY_BRANCH: '"main"'
+            COOLIFY_RESOURCE_UUID: uc0w88ks84cogs8wwg4sgwk4
+            COOLIFY_CONTAINER_NAME: app-uc0w88ks84cogs8wwg4sgwk4-010355699564
+            SERVICE_URL_APP: 'http://back.hdsgroup.io'
+            SERVICE_FQDN_APP: back.hdsgroup.io
+            COOLIFY_URL: 'http://back.hdsgroup.io'
+            COOLIFY_FQDN: back.hdsgroup.io
+            SERVICE_NAME_APP: app
+        env_file:
+            - .env
+        labels:
+            - 'traefik.http.routers.back.rule=Host(`$${DOMAIN}`)'
+            - traefik.http.services.back.loadbalancer.server.port=3003
+            - traefik.enable=true
+            - traefik.http.routers.back.entryPoints=http
+            - traefik.http.routers.back.middlewares=gzip
+            - traefik.http.routers.back.service=back
+            - coolify.managed=true
+            - 'coolify.applicationId=$${COOLIFY_APP_ID}'
+            - coolify.type=application
+            - traefik.docker.network=coolify
+            - coolify.managed=true
+            - coolify.version=4.0.0-beta.444
+            - coolify.applicationId=3
+            - coolify.type=application
+            - coolify.name=app-uc0w88ks84cogs8wwg4sgwk4-010355699564
+            - coolify.resourceName=back
+            - coolify.projectName=hds
+            - coolify.serviceName=back
+            - coolify.environmentName=production
+            - coolify.pullRequestId=0
+            - traefik.enable=true
+            - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+            - traefik.http.routers.http-0-uc0w88ks84cogs8wwg4sgwk4-app.entryPoints=http
+            - 'traefik.http.routers.http-0-uc0w88ks84cogs8wwg4sgwk4-app.rule=Host(`back.hdsgroup.io`) && PathPrefix(`/`)'
+            - traefik.http.routers.http-0-uc0w88ks84cogs8wwg4sgwk4-app.service=http-0-uc0w88ks84cogs8wwg4sgwk4-app
+            - traefik.http.services.http-0-uc0w88ks84cogs8wwg4sgwk4-app.loadbalancer.server.port=3003
+            - 'caddy_0.handle.0_reverse_proxy={{upstreams 3003}}'
+            - 'caddy_0.handle=/*'
+            - caddy_0.header=-Server
+            - 'caddy_0.try_files={path} /index.html /index.php'
+            - 'caddy_0=http://back.hdsgroup.io'
+            - caddy_ingress_network=uc0w88ks84cogs8wwg4sgwk4
+        networks:
+            coolify: null
+            uc0w88ks84cogs8wwg4sgwk4: null
+        container_name: app-uc0w88ks84cogs8wwg4sgwk4-010355699564
+networks:
+    coolify:
+        external: true
+    uc0w88ks84cogs8wwg4sgwk4:
+        name: uc0w88ks84cogs8wwg4sgwk4
+        external: true
